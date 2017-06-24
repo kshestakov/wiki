@@ -31,7 +31,7 @@ dependencies {
 ```
 - Идем в build.gradle своего приложения (android/app/build.gradle) и ищем блок с зависимостями в низу файла.
 
-_Пример: _
+_Пример:_
 ```java
 dependencies {
     compile project(':react-native-maps')
