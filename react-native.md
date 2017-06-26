@@ -109,3 +109,18 @@ dependencies {
 ```
 - Либо запускаем Build -> Clean Project в Android Studio, либо в терминале, находясь в папке android/ вашего проекта, пишем: ./gradlew clean
 - Теперь проект должен сбилдиться и завестись без ошибок.
+
+## Конфликт зависимостей. Авторазрешение.
+
+- Ссылка: https://github.com/facebook/react-native/issues/14223#issuecomment-304509104
+
+## Падает релизная сборка приложения (дебаговая работает нормально) без объяснения причин после разрешения зависимостей с Google Play Services
+
+1. Попробовать поменять версии в build.gradle пакета react-native-facebook-sdk с 23 на 25 в полях:
+- compileSdkVersion
+- targetSdkVersion
+
+2. Поиграться с зависимостями в своем build.gradle (android/app/build.gradle), попробовать следующий вариант:
+- compileSdkVersion 25
+- buildToolsVersion '25.0.2'
+- compile "com.android.support:appcompat-v7:25.0.1"
