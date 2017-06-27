@@ -124,3 +124,7 @@ dependencies {
 - compileSdkVersion 25
 - buildToolsVersion '25.0.2'
 - compile "com.android.support:appcompat-v7:25.0.1"
+
+## Firebase не хочет заводиться на iOS, если устанавливать через Cocoapods
+
+1. Выполнить pod update после pod install
