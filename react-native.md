@@ -125,6 +125,8 @@ dependencies {
 - buildToolsVersion '25.0.2'
 - compile "com.android.support:appcompat-v7:25.0.1"
 
+3. Сделать ./gradlew build (из папки android/), внимательно изучить лог в HTML формате после того, как данная команда упадет и выдаст ошибку
+
 ## Firebase не хочет заводиться на iOS, если устанавливать через Cocoapods
 
 1. Выполнить pod update после pod install
