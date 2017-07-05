@@ -130,3 +130,46 @@ dependencies {
 ## Firebase не хочет заводиться на iOS, если устанавливать через Cocoapods
 
 1. Выполнить pod update после pod install
+
+## Не показывается vk share dialog сразу после логина
+
+1. Происходит это потому, что iOS пытается отрисовать диалоговое окно сразу после успешного логина и не дожидается, когда закроется браузер. Поэтому, чтобы решить проблему, надо сделать асинхронный вызов с задержкой метода отрисовки в главном потоке. Идем в _node_modules/react-native-vkontakte-login/ios/VkontakteSharing.m_ в самый конец файла и оборачиваем все вызовы метода openShareDlg
+```objective-c
+[self openShareDlg:shareDialog resolver:resolve rejecter:reject];
+```
+следующим образом:
+```objective-c
+[self openShareDlg:shareDialog resolver:resolve rejecter:reject];
+```objective-c
+dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+    [self openShareDlg:shareDialog resolver:resolve rejecter:reject];
+});
+```
+
+В итоге должны получить следующее:
+
+```objective-c
+  if (imagePath.length && _bridge.imageLoader) {
+    RCTImageSource *source = [RCTConvert RCTImageSource:data[@"image"]];
+
+    [_bridge.imageLoader loadImageWithURLRequest:source.request callback:^(NSError *error, UIImage *image) {
+      if (image == nil) {
+        NSLog(@"Failed to load image");
+      } else {
+        VKUploadImage *VKImage = [[VKUploadImage alloc] init];
+        VKImage.sourceImage = image;
+        shareDialog.uploadImages = @[VKImage];
+      }
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{ // ДОБАВИЛ
+        [self openShareDlg:shareDialog resolver:resolve rejecter:reject];
+      }); // ДОБАВИЛ
+    }];
+  } else {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(500 * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{ // ДОБАВИЛ
+      [self openShareDlg:shareDialog resolver:resolve rejecter:reject];
+    }); // ДОБАВИЛ
+  }
+```
+
+P.S. Задержку можно и меньше, чем пол секунды.
+P.P.S. Данный способ является чистой воды костылем, если никто не торопит - лучше прикрутить [vkSdkDidDismissViewController](http://vkcom.github.io/vk-ios-sdk/Protocols/VKSdkUIDelegate.html#//api/name/vkSdkDidDismissViewController:) из vk-ios-sdk в VkontakteManager.
